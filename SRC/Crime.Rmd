@@ -1,0 +1,164 @@
+---
+title: "Crime"
+author: "Nachiket Hinge"
+date: "3/10/2022"
+output: pdf_document
+---
+# This is a 2018 Dataset
+
+# Importing and Manipulating Dataset
+```{r echo=FALSE}
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+georgia <- read_excel("Datasets/georgia.xls")
+illinois <- read_excel("Datasets/illinois.xls")
+
+#For Georgia
+georgia <- georgia[c(5:258),]
+colnames(georgia) <- c("City", "Population", "Violent.Crime", "Murder.And.NonNegligent.Manslaughter", "Rape", "Robbery", "Aggraveted.Assault", "Property.Crime", "Burglary", "Larceny.Theft", "Motor.Vehicle.Theft", "Arson")
+
+#For Illinois
+illinois <- illinois[c(5:525),]
+colnames(illinois) <- c("City", "Population", "Violent.Crime", "Murder.And.NonNegligent.Manslaughter", "Rape", "Robbery", "Aggraveted.Assault", "Property.Crime", "Burglary", "Larceny.Theft", "Motor.Vehicle.Theft", "Arson")
+```
+
+# Checking Dimensions
+```{r echo=FALSE}
+print("Georgia: ")
+dim(georgia)
+print("Illinois: ")
+dim(illinois)
+```
+
+
+Let's get the variables we are most interested in:
+
+# Getting relevant Data for Georgia
+```{r echo=FALSE}
+georgia$Population <- as.numeric(georgia$Population)
+georgia$Violent.Crime <- as.numeric(georgia$Violent.Crime)
+georgia$Property.Crime <- as.numeric(georgia$Property.Crime)
+
+new.georgia <- georgia %>% filter(Population > 5000) %>%  mutate(Crime.Rate = ((Violent.Crime + Property.Crime)/Population) * 100) %>% select(City, Crime.Rate) %>% arrange((Crime.Rate))
+print(new.georgia)
+```
+
+# Analyzing Georgia
+```{r}
+which(new.georgia$City == "Alpharetta")
+```
+
+
+Alpharetta Ranks 17th in the list of least crimes out of 94 cities
+
+```{r}
+which(new.georgia$City == "Atlanta")
+```
+
+Atlanta does poorly in terms of crime.. It ranks 69th!!!
+- Not Nice
+
+```{r}
+ga.cities <- c("Alpharetta", "Johns Creek", "Milton", "Duluth", "Decatur", "Savannah-Chatham Metropolitan", "Roswell", "Atlanta", "Kennesaw", "Sandy Springs")
+
+filter(new.georgia, new.georgia$City %in% ga.cities)
+```
+
+Of the cities listed, Johns Creek is the safest followed by Milton
+Atlanta is the least safest city in the list with a crime rate of 5.4%
+
+```{r echo=FALSE}
+ggplot(data = new.georgia) +
+  geom_histogram(aes(x=Crime.Rate), color="white") +
+  xlab("Crime Rate") +
+  ggtitle("Typical Crime rate in Georgia") +
+  xlim(0,15)
+ # scale_x_continuous(breaks = scales::pretty_breaks(n = 15))
+```
+
+```{r}
+new.georgia[which.max(new.georgia$Crime.Rate),]
+```
+
+East Point is the most dangerous city in Georgia
+
+# Getting relevant Data for Illinois
+```{r echo=FALSE}
+illinois$Population <- as.numeric(illinois$Population)
+illinois$Violent.Crime <- as.numeric(illinois$Violent.Crime)
+illinois$Property.Crime <- as.numeric(illinois$Property.Crime)
+
+new.illinois <- illinois %>% filter(Population > 5000) %>%  mutate(Crime.Rate = ((Violent.Crime + Property.Crime)/Population) * 100) %>% select(City, Crime.Rate) %>% arrange((Crime.Rate)) %>% na.omit
+print(new.illinois)
+```
+
+```{r}
+which(new.illinois$City == "Chicago")
+```
+
+Chicago can be considered as a dangerous city as it ranks 252th out of 277 cities in safety
+
+# Analyzing Illinois
+```{r echo=FALSE}
+ggplot(data = new.illinois) +
+  geom_histogram(aes(x=Crime.Rate), color="white") +
+  xlab("Crime Rate") +
+  ggtitle("Typical Crime rate in Illinois") +
+  xlim(0, 15)
+ 
+```
+
+```{r}
+new.illinois[which.max(new.illinois$Crime.Rate),]
+```
+
+North Riverside is the most dangerous city in Illinois
+
+# Comparing Georgia and Illinois
+```{r echo=FALSE}
+print(paste("Average Crime Rate in Georgia", as.character(mean(new.georgia$Crime.Rate))))
+print(paste("Average Crime Rate in Illinois", as.character(mean(new.illinois$Crime.Rate))))
+```
+
+```{r echo=FALSE}
+atlanta <- new.georgia$Crime.Rate[new.georgia$City == "Atlanta"]
+chicago <- new.illinois$Crime.Rate[new.illinois$City == "Chicago"]
+print(paste("Crime rate in Atlanta:", as.character(atlanta)))
+print(paste("Crime rate in Chicago:", as.character(chicago)))
+```
+
+```{r echo=FALSE}
+ggplot() + 
+  geom_density(aes(x = new.georgia$Crime.Rate), color = "white", fill="Red") + 
+  geom_density(aes(x = new.illinois$Crime.Rate), color = "white", fill="Blue") +
+  xlab("Crime Rate (Red = GA, Blue = IL)") +
+  ylab("Density") +
+  ggtitle("Crime Rate in Georgia vs Illinois")
+```
+
+```{r}
+new.georgia$Crime.Rate[new.georgia$City == "Alpharetta"]
+georgia$Population[georgia$City == "Alpharetta"]
+```
+
+```{r}
+alpharetta.of.illinois <- new.illinois$City[new.illinois$Crime.Rate > 1.8 & new.illinois$Crime.Rate < 1.9]
+alpharetta.of.illinois
+```
+
+```{r}
+illinois %>% filter(City %in% alpharetta.of.illinois & Population > 50000 & Population < 80000)
+```
+
+Berwyn is the Alpharetta of Illinois
+
+
+# Other Stuff
+```{r}
+il.cities <- c("Oak Brook", " South Barrington", "Lincolnwood", "Hoffman Estates", "Glendale Heights")
+
+filter(new.illinois, new.illinois$City %in% il.cities)
+```
+
+
