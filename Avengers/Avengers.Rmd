@@ -1,0 +1,58 @@
+---
+title: "Avengers"
+author: "Nachiket Hinge"
+date: "2/28/2022"
+output: pdf_document
+---
+
+```{r}
+avengers <- read.csv("Datasets/avengers.csv")
+head(avengers)
+```
+
+```{r}
+avengers <- avengers[, c(1, 3, 4, 5, 6, 9, 10)]
+```
+
+```{r}
+head(avengers)
+```
+
+```{r}
+library(tidyverse)
+avengers <- avengers %>% filter(Year > 1920)
+```
+
+```{r}
+dim(avengers)
+```
+
+
+```{r}
+unique(avengers$Gender)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(data=avengers, aes(x=Gender, fill = Gender)) + geom_bar()
+
+```
+
+```{r}
+ggplot(data=avengers, aes(x=Gender, y = Appearances, color = Gender)) + geom_boxplot(size=1.2)
+```
+
+```{r}
+quantile(avengers$Appearances, probs = 0.90)
+```
+
+
+```{r fig3, fig.width = 7.5, fig.asp = .62}
+ggplot(data=avengers, aes(x=Year, y = Appearances, color = Gender, label = Name.Alias)) + geom_point() + geom_text(aes(label=ifelse(Appearances>1225,as.character(Name.Alias),'')),hjust=0,vjust=0)
+```
+
+```{r fig3, fig.width = 7.5, fig.asp = .82}
+ggplot(data=avengers, aes(x=Years.since.joining, y = Appearances, color = Current.)) + geom_point() + geom_text(aes(label=ifelse(Appearances>1500,as.character(Name.Alias),'')),hjust=0.75,vjust=-1)
+```
+
